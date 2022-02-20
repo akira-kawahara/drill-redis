@@ -116,8 +116,6 @@ impl Encoder {
 pub(crate) struct Decoder {
     /// Read buffer.
     buffer: Vec<u8>,
-    /// Position of the buffer to be read.
-    pos: usize,
 }
 
 impl Decoder {
@@ -129,7 +127,6 @@ impl Decoder {
     pub(crate) fn new() -> Self {
         Decoder {
             buffer: Vec::with_capacity(4 * 1024),
-            pos: 0,
         }
     }
     /// Decode byte data into Data struct.
@@ -139,7 +136,7 @@ impl Decoder {
     {
         self.read(stream).await?;
 
-        match self.get_byte() {
+        match self.peek_byte() {
             //Arrays
             b'*' => match self.get_integer() {
                 Some(size) => {
@@ -159,7 +156,7 @@ impl Decoder {
                 }
                 None => return Err("protocol error 1".into()),
             },
-            _ => {self.put_back_byte(); return self._decode(stream).await},
+            _ => return self._decode(stream).await,
         }
     }
     /// Decode byte data into Data struct.
@@ -168,7 +165,7 @@ impl Decoder {
     where
         T: BufReadExt + Unpin + std::marker::Send + std::marker::Sync,
     {
-        match self.get_byte() {
+        match self.peek_byte() {
             //Bulk Strings
             b'$' => match self.get_integer() {
                 Some(len) => {
@@ -202,7 +199,6 @@ impl Decoder {
         T: BufReadExt + Unpin + std::marker::Send,
     {
         // read_until append bytes to Vec.
-        self.pos = 0;
         self.buffer.clear();
 
         match stream.read_until(b'\n', &mut self.buffer).await {
@@ -250,29 +246,23 @@ impl Decoder {
         }
     }
     /// get a byte from the buffer.
-    fn get_byte(&mut self) -> u8 {
-        self.pos = self.pos + 1;
+    fn peek_byte(&mut self) -> u8 {
         *self.buffer.first().unwrap()
     }
     /// get all bytes from the buffer.    
     fn get_bytes(&mut self) -> Vec<u8> {
-        self.buffer[self.pos..].to_vec()
+        self.buffer[1..].to_vec()
     }
     /// get integer from the buffer.
     fn get_integer(&mut self) -> Option<i64> {
-        match std::str::from_utf8(&self.buffer[self.pos..]) {
+        match std::str::from_utf8(&self.buffer[1..]) {
             Ok(integer) => match i64::from_str(integer) {
                 Ok(integer) => Some(integer),
                 Err(_e) => None,
             },
             Err(_e) => None,
         }
-    }
-    /// put back a byte to the buffer.
-    fn put_back_byte(&mut self) {
-        self.pos = self.pos - 1;
-    }
-    
+    }    
 }
 
 /// Parse Data struct

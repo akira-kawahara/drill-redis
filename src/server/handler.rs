@@ -5,6 +5,7 @@ use crate::{
     command,
     protocol,
     protocol::resp::Decoder,
+    protocol::resp::Encoder,
 };
 use async_std::{
     io::BufReader,
@@ -76,13 +77,16 @@ impl Handler {
                 }
             };
             //　Execute requested command.
-            command::execute(&mut writer, data).await?;
+            let response = command::execute(data).await?;
+            // Return a response.
+            let mut encoder = Encoder::new(response);
+            encoder.encode(&mut writer).await?;
         }
     }
     /// Close handler.
     pub(crate) fn close(&mut self) {
         match self.stream.shutdown(Shutdown::Both) {
-            Err(_e) => {}
+            Err(e) => {eprintln!("{}", e)}
             Ok(()) => {}
         }
     }

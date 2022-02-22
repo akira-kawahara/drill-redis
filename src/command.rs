@@ -2,8 +2,7 @@
 //! 
 //! <https://redis.io/commands>
 //! 
-use crate::protocol::resp::{Data, Parser, Encoder};
-use async_std::io::Write;
+use crate::protocol::resp::{Data, Parser};
 use async_trait::async_trait;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
@@ -117,17 +116,11 @@ pub(crate) trait Command {
 }
 
 /// execute command.
-pub(crate) async fn execute<T>(stream: &mut T, cmd: Data) -> crate::Result<()>
-where
-    T: Write + std::marker::Unpin + std::marker::Send,
-{
+pub(crate) async fn execute(cmd: Data) -> crate::Result<Data> {
     if let Some(mut parser) = Parser::new(cmd) {
         let response = COMMANDS.execute(&mut parser).await;
-        let mut encoder = Encoder::new(response);
-        encoder.encode(stream).await?;
+        Ok(response)
     } else {
-        let mut encoder = Encoder::new(Data::error("protocol error"));
-        encoder.encode(stream).await?;
+        Ok(Data::error("protocol error"))
     }
-    Ok(())
 }

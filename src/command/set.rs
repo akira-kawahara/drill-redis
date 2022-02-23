@@ -95,7 +95,7 @@ impl super::Command for Set {
         match db::DB
             .write()
             .await
-            .set(key, value, expiration, set_condition, get, keep_ttl)
+            .set(key, value, expiration, set_condition, keep_ttl, get)
         {
             Some(value) => Ok(Data::Bulk(value)),
             None => {

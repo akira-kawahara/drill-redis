@@ -111,16 +111,10 @@ impl DBManager {
     }
     /// Get the value.
     pub(crate) fn get_value(&self, key: &Vec<u8>) -> Option<Vec<u8>> {
-        let entry = self.entries.get(key);
-
-        if Self::expierd_opt(entry) {
-            None
-        }
-        else {
-            match entry {
-                Some(entry) => Some(entry.value.clone()),
-                None => None,
-            }
+        let entry = self.get(key);
+        match entry {
+            Some(entry) => Some(entry.value.clone()),
+            None => None,
         }
     }
     /// Set value with options
@@ -168,10 +162,7 @@ impl DBManager {
     pub(crate) fn del(&mut self, key: Vec<u8>) -> bool {
         match self.entries.entry(key) {
             Entry::Occupied(entry) => {
-                let mut deleted = false;
-                if Self::expierd(entry.get()) {
-                    deleted = false;
-                }
+                let deleted = !Self::expierd(entry.get());
                 entry.remove();
                 deleted
             }

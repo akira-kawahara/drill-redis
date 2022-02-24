@@ -132,7 +132,7 @@ impl Decoder {
     /// Decode byte data into Data struct.
     pub(crate) async fn decode<T>(&mut self, stream: &mut T) -> crate::Result<Data>
     where
-        T: BufReadExt + Unpin + std::marker::Send + std::marker::Sync,
+        T: BufReadExt + std::marker::Unpin + std::marker::Send
     {
         self.read(stream).await?;
 
@@ -163,7 +163,7 @@ impl Decoder {
     /// intelnal
     async fn _decode<T>(&mut self, stream: &mut T) -> crate::Result<Data>
     where
-        T: BufReadExt + Unpin + std::marker::Send + std::marker::Sync,
+        T: BufReadExt + std::marker::Unpin + std::marker::Send
     {
         match self.peek_byte() {
             //Bulk Strings

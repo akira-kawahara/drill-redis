@@ -12,8 +12,9 @@ use drill_redis;
 /// Port 63790 is the default for redis.
 /// 
 /// # Examples
-/// 
+/// ```ignore
 /// drill_redis::client::run("127.0.0.1:6379").await
+/// ```
 #[async_std::main]
 async fn main() -> drill_redis::Result<()> {
     drill_redis::client::run("127.0.0.1:6379").await

@@ -25,7 +25,7 @@ pub(crate) enum TimeUnit {
     Millisecond,
 }
 
-/// next bytes macro.
+/// Next bytes macro.
 /// If command stream is EOF, return OK(error response).
 macro_rules! next_bytes {
     ($cmd:expr) => {
@@ -35,7 +35,7 @@ macro_rules! next_bytes {
         }
     };
 }
-/// next u64 macro.
+/// Next u64 macro.
 /// If command stream is EOF, return OK(error response).
 macro_rules! next_u64 {
     ($cmd:expr) => {
@@ -45,7 +45,7 @@ macro_rules! next_u64 {
         }
     };
 }
-/// check end of param macro.
+/// Check end of param macro.
 /// If command stream isn't EOF, return OK(error response).
 macro_rules! check_end_of_param {
     ($cmd:expr) => {
@@ -90,7 +90,7 @@ impl CommandManager {
             ]),
         }
     }
-    ///　execute command.
+    /// Execute command.
     async fn execute(&self, cmd: &mut Parser) -> Data {
         match cmd.next_string() {
             Ok(Some(cmd_name)) => {
@@ -115,7 +115,7 @@ pub(crate) trait Command {
     async fn execute(&self, cmd: &mut Parser) -> crate::Result<Data>;
 }
 
-/// execute command.
+/// Execute command.
 pub(crate) async fn execute(cmd: Data) -> crate::Result<Data> {
     if let Some(mut parser) = Parser::new(cmd) {
         let response = COMMANDS.execute(&mut parser).await;

@@ -15,8 +15,9 @@ use drill_redis;
 /// # Examples
 /// 
 /// The client can only access the server from the same machine.
-/// 
+/// ```ignore
 /// drill_redis::server::run("localhost:6379").await
+/// ```
 #[async_std::main]
 async fn main() -> drill_redis::Result<()> {
     drill_redis::server::run("0.0.0.0:6379").await

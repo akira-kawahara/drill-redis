@@ -9,7 +9,7 @@ use async_std::{
 };
 use std::net::Shutdown;
 
-///
+/// Redis client main loop.
 pub async fn run(addr: impl ToSocketAddrs) -> crate::Result<()> {
     let stream = TcpStream::connect(addr).await?;
     let mut lines_from_stdin = BufReader::new(stdin()).lines().fuse();
@@ -62,14 +62,14 @@ pub async fn run(addr: impl ToSocketAddrs) -> crate::Result<()> {
     Ok(())
 }
 
-/// show command prompt
+/// Show command prompt.
 async fn command_pronpt() -> crate::Result<()> {
     print!("> ");
     stdout().flush().await?;
     Ok(())
 }
 
-///
+/// Display response data.
 fn display_data(data: &Data) -> crate::Result<()> {
     match data {
         Data::SimpleString(simple_string) => {

@@ -21,8 +21,8 @@ pub(super) struct Expire {
 }
 
 /// command register function
-pub(super) fn command(milliseconds: super::TimeUnit) -> (String, super::Cmd) {
-    match milliseconds {
+pub(super) fn command(time_unit: super::TimeUnit) -> (String, super::Cmd) {
+    match time_unit {
         super::TimeUnit::Second =>(String::from("PEXPIRE"), Box::new(Expire { time_unit })),
         super::TimeUnit::Millisecond =>(String::from("EXPIRE"), Box::new(Expire { time_unit }))   
     }

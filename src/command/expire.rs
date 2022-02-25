@@ -17,14 +17,14 @@ use std::time::{Duration, Instant};
 
 /// Expire commnad struct
 pub(super) struct Expire {
-    milliseconds: super::TimeUnit,
+    time_unit: super::TimeUnit,
 }
 
 /// command register function
 pub(super) fn command(milliseconds: super::TimeUnit) -> (String, super::Cmd) {
     match milliseconds {
-        super::TimeUnit::Second =>(String::from("PEXPIRE"), Box::new(Expire { milliseconds })),
-        super::TimeUnit::Millisecond =>(String::from("EXPIRE"), Box::new(Expire { milliseconds }))   
+        super::TimeUnit::Second =>(String::from("PEXPIRE"), Box::new(Expire { time_unit })),
+        super::TimeUnit::Millisecond =>(String::from("EXPIRE"), Box::new(Expire { time_unit }))   
     }
 }
 
@@ -33,7 +33,7 @@ impl super::Command for Expire {
     /// Get command body
     async fn execute(&self, cmd: &mut Parser) -> crate::Result<Data> {
         let key = super::next_bytes!(cmd);
-        let expiration = match self.milliseconds {
+        let expiration = match self.time_unit {
             super::TimeUnit::Second =>Some(Instant::now().add(Duration::from_millis(super::next_u64!(cmd)))),
             super::TimeUnit::Millisecond =>Some(Instant::now().add(Duration::from_secs(super::next_u64!(cmd)))),   
         };

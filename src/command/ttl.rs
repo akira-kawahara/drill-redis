@@ -16,14 +16,14 @@ use std::time::Instant;
 
 /// TTL commnad struct
 pub(crate) struct TTL {
-    milliseconds: super::TimeUnit,
+    time_unit: super::TimeUnit,
 }
 
 /// command register function
-pub(crate) fn command(milliseconds: super::TimeUnit) -> (String, super::Cmd) {
-    match milliseconds {
-        super::TimeUnit::Second =>(String::from("PTTL"), Box::new(TTL { milliseconds })),
-        super::TimeUnit::Millisecond =>(String::from("TTL"), Box::new(TTL { milliseconds }))   
+pub(crate) fn command(time_unit: super::TimeUnit) -> (String, super::Cmd) {
+    match time_unit {
+        super::TimeUnit::Second =>(String::from("PTTL"), Box::new(TTL { time_unit })),
+        super::TimeUnit::Millisecond =>(String::from("TTL"), Box::new(TTL { time_unit }))   
     }
 }
 
@@ -38,7 +38,7 @@ impl super::Command for TTL {
             Some(entry) => match entry.expiration {
                 Some(expiration) => match expiration.checked_duration_since(Instant::now()) {
                     Some(ttl) => {
-                        match self.milliseconds {
+                        match self.time_unit {
                             super::TimeUnit::Second => {return Ok(Data::Integer(ttl.as_millis() as i64));}
                             super::TimeUnit::Millisecond => {return Ok(Data::Integer(ttl.as_secs() as i64));} 
                         }

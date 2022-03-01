@@ -25,7 +25,7 @@ impl super::Command for Get {
         super::check_end_of_param!(cmd);
 
         match db::DB.read().await.get_value(&key) {
-            Some(value) => Ok(Data::Bulk(value)),
+            Some(value) => Ok(Data::checked_bulk(value)),
             None => Ok(Data::NullBulk),
         }
     }

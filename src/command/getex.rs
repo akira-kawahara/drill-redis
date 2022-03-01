@@ -72,7 +72,7 @@ impl super::Command for GetEx {
         }
 
         match db::DB.write().await.getex(key, expiration, persist) {
-            Some(value) => Ok(Data::Bulk(value)),
+            Some(value) => Ok(Data::checked_bulk(value)),
             None => Ok(Data::NullBulk),
         }
     }

@@ -97,7 +97,7 @@ impl super::Command for Set {
             .await
             .set(key, value, expiration, set_condition, keep_ttl, get)
         {
-            Some(value) => Ok(Data::Bulk(value)),
+            Some(value) => Ok(Data::checked_bulk(value)),
             None => {
                 if get {
                     Ok(Data::NullBulk)

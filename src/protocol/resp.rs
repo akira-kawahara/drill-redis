@@ -9,7 +9,7 @@ use std::{str, str::FromStr, vec};
 /// 
 ///  Strings are treated as bytes with utf-8 encoding.
 /// 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub(crate) enum Data {
     SimpleString(Vec<u8>),
     Error(Vec<u8>),
@@ -21,6 +21,9 @@ pub(crate) enum Data {
 }
 
 impl Data {
+    /// Bulk bytes max size.
+    const MAX_BULK_BYTE: i64 = 512 * 1000 * 1000;
+
     /// helper function. return OK RESP string.
     pub(crate) fn ok() -> Data {
         Data::SimpleString(b"OK".to_vec())
@@ -32,6 +35,14 @@ impl Data {
     /// helper function. return error RESP string.    
     pub(crate) fn error(msg: &str) -> Data {
         Data::Error(msg.as_bytes().to_vec())
+    }
+    /// helper function. return error RESP string.    
+    pub(crate) fn checked_bulk(value: Vec<u8>) -> Data {
+        if value.len() as i64 > Self::MAX_BULK_BYTE {
+            Data::Error(b"Data size is too large.".to_vec())
+        } else {
+            Data::Bulk(value)
+        }
     }
 }
 /// Encode Decode byte data into Data struct. into byte data.
@@ -119,10 +130,6 @@ pub(crate) struct Decoder {
 }
 
 impl Decoder {
-    /// Bulk bytes max size.
-    const MAX_BULK_BYTE: i64 = 512 * 1000 * 1000;
-    /// Array max size.
-    const MAX_ARRAY_SIZE: i64 = 1000;
     /// Create Decoder instance.
     pub(crate) fn new() -> Self {
         Decoder {
@@ -140,9 +147,7 @@ impl Decoder {
             //Arrays
             b'*' => match self.get_integer() {
                 Some(size) => {
-                    if Self::MAX_ARRAY_SIZE < size {
-                        return Err("Array length is too long".into());
-                    } else if size < 1 {
+                    if size < 1 {
                         return Ok(Data::NullArray);
                     } else {
                         let mut array = Vec::with_capacity(size as usize);
@@ -169,7 +174,7 @@ impl Decoder {
             //Bulk Strings
             b'$' => match self.get_integer() {
                 Some(len) => {
-                    if Self::MAX_BULK_BYTE < len {
+                    if Data::MAX_BULK_BYTE < len {
                         return Err("Bulk length is too long".into());
                     } else if len < 1 {
                         return Ok(Data::NullBulk);

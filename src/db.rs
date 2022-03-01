@@ -61,7 +61,7 @@ macro_rules! register_expiration {
         if let Some(expiration) = $expiration {
             $db.expirations
                 .insert((expiration, $db.expiration_id), $key);
-                $db.expiration_id = $db.expiration_id + 1;
+            $db.expiration_id = $db.expiration_id.wrapping_add(1);
         }
     };
 }

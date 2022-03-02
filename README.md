@@ -78,9 +78,22 @@ For more information about Redis commands, please refer to the following.
 
 https://redis.io/commands
 
+# Issue
+Compared to the original Redis[^1], the throughput is the similar but the CPU usage is about three times higher.
+(Running in a single thread by using task::spawn_local instead of task::spawn, the throughput and CPU usage were almost the same as the original Redis.)
+
+The following commands were run as benchmarks.[^2]
+```
+redis-benchmark -c 50 -n 1000000 -q
+```
+
+
 # Contributing
 Bug reports and suggestions for improvements are welcome.
 
 
 # License
 The source code is licensed MIT.
+
+[^1]:Redis 2.2.0 was used for benchmarking.
+[^2]:Modified to execute only PING, GET, and SET.
